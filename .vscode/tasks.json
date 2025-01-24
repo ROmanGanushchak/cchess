@@ -1,0 +1,55 @@
+{
+    "tasks": [
+        {
+            "type": "cppbuild",
+            "label": "g++.exe build active file",
+            "command": "C:\\MinGW\\bin\\g++.exe",
+            "args": [
+                "-fdiagnostics-color=always",
+                "-g",
+                "${workspaceFolder}\\*.cpp",
+                "-o",
+                "${fileDirname}\\${fileBasenameNoExtension}.exe"
+            ],
+            "options": {
+                "cwd": "${fileDirname}"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            }
+        },
+        {
+            "label": "Cmake: build",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "--build",
+                "${workspaceFolder}/cmakes", // Adjust this path if needed
+                "--config",
+                "Debug" // You can change to "Release" if necessary
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": ["$gcc"],
+            "detail": "Generated task for CMake build"
+        }
+        // {
+        //     "type": "cmake",
+        //     "label": "CMake: build",
+        //     "command": "build",
+        //     "targets": [
+        //         "[N/A - Select Kit]"
+        //     ],
+        //     "group": "build",
+        //     "problemMatcher": [],
+        //     "detail": "CMake template build task"
+        // }
+    ],
+    "version": "2.0.0",
+}  
