@@ -28,11 +28,8 @@ typedef enum {
 
 typedef struct {
     u64 figures[8];
-    u32 rooks; // 4 rooks, 8 bits each, 7thbit - isPresent, 0-5 bits position
-    u32 bishops;
-    u16 queens;
     MOVE lastMove;
-    bool turn : 1; // 0 - white, 1 - black
+    bool turn : 1; // 1 - white, 0 - black
     bool isCheck : 1;
     bool isMate : 1;
     bool doubleCastleWhite : 1;
@@ -47,5 +44,7 @@ bool checkIsCheck(GameState* state, bool side);
 bool move(GameState* state, uint8_t pos1, uint8_t pos2);
 array_pos getPossibleMoves(GameState* state, uint8_t x, uint8_t y);
 void startEngine();
+void printBoard(GameState* state);
+int getFigure(GameState* state, u8 pos);
 
 #endif
