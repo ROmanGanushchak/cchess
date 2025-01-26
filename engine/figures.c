@@ -23,8 +23,8 @@ u64 possibleKnightAttacks(GameState* state, bool side) {
     return 
             (knights & SetNoTwoLeftColumns) >> 10 | (knights & SetNoTwoLeftColumns) << 6 |
             (knights & SetNoTwoRightColumns) >> 6 | (knights & SetNoTwoRightColumns) << 10 |
-            (knights & SetNoLeftColumn) >> 15 | (knights & SetNoLeftColumn) << 17 |
-            (knights & SetNoRightColumn) >> 17 | (knights & SetNoRightColumn) << 15;
+            (knights & SetNoRightColumn) >> 15 | (knights & SetNoRightColumn) << 17 |
+            (knights & SetNoLeftColumn) >> 17 | (knights & SetNoLeftColumn) << 15;
 }
 
 u64 possibleKingAttacks(GameState* state, bool side) {

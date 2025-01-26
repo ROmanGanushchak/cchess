@@ -2,6 +2,7 @@ set(ENGINE_SOURCES
     engine.c
     figures.c
     slidingMove.c
+    moves.c
 )
 
 add_library(engine STATIC ${ENGINE_SOURCES})

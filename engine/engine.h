@@ -15,6 +15,16 @@ typedef struct {
     u32 len, size;
 } array_pos;
 
+enum Figures {
+    FKING,
+    FQUEEN,
+    FBISHOP,
+    FKNIGHT,
+    FROOK,
+    FPAWN,
+    FEMPTY=255,
+};
+
 typedef enum {
     BOCCUPIED,
     BCOLOR,
@@ -26,8 +36,9 @@ typedef enum {
     BQUEEN
 } Boards;
 
+#define BOARD_COUNT 8
 typedef struct {
-    u64 figures[8];
+    u64 figures[BOARD_COUNT];
     MOVE lastMove;
     bool turn : 1; // 1 - white, 0 - black
     bool isCheck : 1;
@@ -41,8 +52,8 @@ typedef struct {
 extern GameState initialGameState;
 
 bool checkIsCheck(GameState* state, bool side);
-bool move(GameState* state, uint8_t pos1, uint8_t pos2);
-array_pos getPossibleMoves(GameState* state, uint8_t x, uint8_t y);
+// bool move(GameState* state, uint8_t pos1, uint8_t pos2);
+// array_pos getPossibleMoves(GameState* state, uint8_t x, uint8_t y);
 void startEngine();
 void printBoard(GameState* state);
 int getFigure(GameState* state, u8 pos);

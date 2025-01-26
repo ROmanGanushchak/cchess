@@ -28,24 +28,30 @@ bool checkIsCheck(GameState* state, bool side) {
 
 }
 
-bool movePiece(GameState* stateP, uint8_t pos1, uint8_t pos2) {
-    assert(pos1 < 64 && pos2 < 64);
-    GameState state = *stateP;
-    if (!((state.figures[BOCCUPIED] >> pos1) & 1)) return false;
-    if (!(((state.figures[BCOLOR] >> pos1) & 1) ^ state.turn)) return false;
+/* Just notes
+move types:
+regular move (taking on the passage)
+castling
+promoting a pawn
+*/
+// bool movePiece(GameState* stateP, u8 pos1, u8 pos2) {
+//     assert(pos1 < 64 && pos2 < 64);
+//     GameState state = *stateP;
+//     if (!((state.figures[BOCCUPIED] >> pos1) & 1)) return false;
+//     if (!(((state.figures[BCOLOR] >> pos1) & 1) ^ state.turn)) return false;
 
-    // for white for now
-    if ((state.figures[BPAWN] >> pos1) & 1) {
-        if (pos2 == pos1 + 8);
-    }
+//     // for white for now
+//     if ((state.figures[BPAWN] >> pos1) & 1) {
+//         if (pos2 == pos1 + 8);
+//     }
 
-    if (checkIsCheck(stateP, stateP->turn)) return false;
-    return true;
-}
+//     if (checkIsCheck(stateP, stateP->turn)) return false;
+//     return true;
+// }
 
-array_pos getPossibleMoves(GameState* state, uint8_t x, uint8_t y) {
+// array_pos getPossibleMoves(GameState* state, uint8_t x, uint8_t y) {
     
-}
+// }
 
 void startEngine() {
     initInitialGameState();
@@ -57,7 +63,7 @@ void printBoard(GameState* state) {
         for (int j=0; j<8; j++) {
             int idx = i*8+j;
             if (( ( state->figures[BOCCUPIED] >> idx ) & 1) == 0) {
-                printf(" ");
+                printf(".");
                 continue;
             }
             char type = '\0';

@@ -155,6 +155,7 @@
     "executor": "cpp",
     "io_context": "cpp",
     "netfwd": "cpp",
-    "socket": "cpp"
+    "socket": "cpp",
+    "slidingmove.h": "c"
   }
 }
