@@ -10,21 +10,6 @@ typedef struct {
     u8 to;
 } MOVE;
 
-typedef struct {
-    u8 *a;
-    u32 len, size;
-} array_pos;
-
-enum Figures {
-    FKING,
-    FQUEEN,
-    FBISHOP,
-    FKNIGHT,
-    FROOK,
-    FPAWN,
-    FEMPTY=255,
-};
-
 typedef enum {
     BOCCUPIED,
     BCOLOR,

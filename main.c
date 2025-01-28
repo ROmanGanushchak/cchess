@@ -7,42 +7,50 @@
 
 int main() {
     startEngine();
-    // GameState state = initialGameState;
-    // GameState cust;
-    // memset(&cust, 0, sizeof(cust));
-    // cust.turn = 1;
-    // cust.figures[BQUEEN] |= ULL1 << 35;
-    // cust.figures[BPAWN] |= 1 << 19 | 1 << 20 | ULL1 << 42;
-    // cust.figures[BROOK] |= ULL1 << 16;
-    // cust.figures[BBISHOP] |= ULL1 << 10;
-    // cust.figures[BKING] |= ULL1 << 3;
-    // cust.figures[BCOLOR] |= cust.figures[BQUEEN] | cust.figures[BBISHOP];
-    // cust.figures[BOCCUPIED] |= cust.figures[BQUEEN] | cust.figures[BPAWN] | cust.figures[BROOK] | cust.figures[BBISHOP] | cust.figures[BKING];
 
-    // printBoard(&cust);
-    // printf("IsPossible: %d\n", movePiece(&cust, 35, 34, 0));
-    // printf("IsPossible: %d\n", movePiece(&cust, 3, 11, 0));
-    // printf("IsPossible: %d\n", movePiece(&cust, 11, 12, 0));
-    // printf("IsPossible: %d\n", movePiece(&cust, 12, 13, 0));
-    // printf("IsPossible: %d\n", movePiece(&cust, 13, 21, 0));
-    // printf("IsPossible: %d\n", movePiece(&cust, 20, 12, 0));
-    // printf("\n");
-    // printU64(getPossibleMoves(&cust, 16));
-    // printf("\n");
-
-    // printBoard(&cust);
-
-    GameState board = initialGameState;
+    GameState board = initialGameState, saved = initialGameState;
     printBoard(&board);
     char buffer[256];
     while (true) {
-        scanf("%s %s %s", buffer, buffer+3, buffer+6);
-        if (buffer[0] == 'm' && buffer[1] == 'v') {
+        scanf("%s", buffer);
+        // printf("Buffer: %s\n", buffer);
+        if ((buffer[0] == 'm' && buffer[1] == 'v') || strncmp(buffer, "promote", 7) == 0) {
+            scanf("%s %s", buffer+3, buffer+6);
             u8 pos1 = ((buffer[4]-'1')<<3) + buffer[3]-'a';
             u8 pos2 = ((buffer[7]-'1')<<3) + buffer[6]-'a';
-            printf("Pos1: %d, Pos2: %d\n", pos1, pos2);
-            bool isMoved = movePiece(&board, pos1, pos2, 0);
+            u8 promotingType = PROMOTING_NONE;
+            if (strncmp(buffer, "mv", 2)) {
+                printf("Scanning type\n");
+                scanf(" %c", buffer);
+                printf("Buffer0: %c\n", buffer[0]);
+                switch (buffer[0]) {
+                case 'r':
+                    promotingType = PROMOTING_ROOK;
+                    break;
+                case 'b':
+                    promotingType = PROMOTING_BISHOP;
+                    break;
+                case 'q':
+                    promotingType = PROMOTING_QUENE;
+                    break;
+                case 'k':
+                    promotingType = PROMOTING_KNIGHT;
+                    break;
+                }
+            }
+            printf("Promoting: %d\n", promotingType);
+            bool isMoved = movePiece(&board, pos1, pos2, promotingType);
             if (!isMoved) printf("Invalid move\n");
+        } else if (strncmp(buffer, "save", 4) == 0) {
+            saved = board;
+            printf("Saved\n");
+        } else if (strncmp(buffer, "restore", 7) == 0) {
+            board = saved;
+            printf("Restored\n");
+        } else if (strncmp(buffer, "showmv", 6) == 0) {
+            scanf("%s", buffer);
+            u8 pos = ((buffer[1]-'1')<<3) + buffer[0]-'a';
+            printU64(getPossibleMoves(&board, pos));
         }
 
         printf("Turn: %d\n", board.turn);

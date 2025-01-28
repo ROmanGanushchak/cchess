@@ -1,5 +1,5 @@
-fix cant take the figure that gives a check
-
-castling
 checkmate check
-capturing on the passage
+
+Additional:
+1. Add converter to string position notation
+2. Add party moves for export

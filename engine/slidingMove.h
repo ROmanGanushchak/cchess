@@ -10,6 +10,7 @@ void initSlidingPiecesTables();
 
 void printU64(u64 a);
 u64 getLinearMovement(u64 field, u8 pos);
+u64 horizontalMovement(u64 field, u8 pos);
 u64 getDiagonalMovement(u64 field, u64 reversed, u8 pos);
 u64 reverseRaws(u64 field);
 

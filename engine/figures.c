@@ -18,8 +18,8 @@ u64 possiblePawnAttacks(GameState* state, bool side) {
     }
 }
 
-u64 possibleKnightAttacks(GameState* state, bool side) {
-    u64 knights = state->figures[BKNIGHT] & ((side) ? state->figures[BCOLOR] : ~state->figures[BCOLOR]);
+u64 possibleKnightAttacks(u64 knights, u64 color, bool side) {
+    knights &= (side) ? color : ~color;
     return 
             (knights & SetNoTwoLeftColumns) >> 10 | (knights & SetNoTwoLeftColumns) << 6 |
             (knights & SetNoTwoRightColumns) >> 6 | (knights & SetNoTwoRightColumns) << 10 |
@@ -41,7 +41,7 @@ u64 getAttacks(GameState* state, bool side) {
     u64 occupied = state->figures[BOCCUPIED];
     u64 occupiedReversed = reverseRaws(occupied);
 
-    u64 res = possibleKingAttacks(state, side) | possibleKnightAttacks(state, side) | possiblePawnAttacks(state, side);
+    u64 res = possibleKingAttacks(state, side) | possibleKnightAttacks(state->figures[BKNIGHT], state->figures[BCOLOR], side) | possiblePawnAttacks(state, side);
     for (u8 i=0; i<64; i++) {
         if (((rooks >> i) & 1) || ((queens >> i) & 1))
             res |= getLinearMovement(occupied, i);

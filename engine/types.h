@@ -7,6 +7,8 @@
 #define u32 unsigned int
 #define u64 unsigned long long
 
+#define abs(a) ((a >= 0) ? a : -a)
+
 #define ULL1 ((u64)1)
 #define LEFT_EDGE 0x0101010101010101
 #define RIGHT_EDGE LEFT_EDGE >> 7

@@ -60,10 +60,11 @@ void startEngine() {
 
 void printBoard(GameState* state) {
     for (int i=7; i>=0; i--) {
+        printf("\033[38;5;195m%d | \033[0m", i+1);
         for (int j=0; j<8; j++) {
             int idx = i*8+j;
             if (( ( state->figures[BOCCUPIED] >> idx ) & 1) == 0) {
-                printf(".");
+                printf(". ");
                 continue;
             }
             char type = '\0';
@@ -77,12 +78,20 @@ void printBoard(GameState* state) {
                 printf("\nINCORRECT BOARD %d\n", idx); 
                 return;
             }
-            if (( state->figures[BCOLOR] >> idx ) & 1)
-                type += 'A' - 'a';
-            printf("%c", type);
+            if (( state->figures[BCOLOR] >> idx ) & 1) 
+                printf("\033[38;5;214m%c\033[0m ", type + 'A' - 'a');
+            else 
+                printf("\033[38;5;50m%c\033[0m ", type);
         }
         printf("\n");
     }
+    printf("    \033[38;5;195m");
+    for (int i=1; i<=7; i++)
+        printf("--", i);
+    printf("-\n    ");
+    for (int i=0; i<8; i++)
+        printf("%c ", 'a'+i);
+    printf("\033[0m\n");
 }
 
 int getFigure(GameState* state, u8 pos) {
