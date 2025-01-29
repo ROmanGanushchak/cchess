@@ -12,8 +12,14 @@ enum {
     PROMOTING_KNIGHT
 };
 
+typedef enum {
+    MOVE_EN_PASSAGE,
+    MOVE_REGULAR,
+    MOVE_SAME_FIGURE_CAPTURED,
+    MOVE_CAPTURED,
+} MoveType;
+
 u64 getPossibleMoves(GameState* state, u8 pos);
 bool movePiece(GameState* state, u8 pos1, u8 pos2, u8 promotionType);
-bool checkCkeckmate(GameState* state, bool depth);
 
 #endif

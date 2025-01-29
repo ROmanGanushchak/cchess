@@ -4,30 +4,30 @@
 u64 diagonalMask[15];
 u8 reverseU8Map[256];
 void initReverseU8Map() {
-    for (int i=0; i<256; i++) {
+    for (u16 i=0; i<256; i++) {
         u8 reversed = 0;
-        for (int j=0; j<8; j++) 
+        for (u8 j=0; j<8; j++) 
             if ((i >> j) & 1) 
                 reversed |= 1 << (7-j);
         reverseU8Map[i] = reversed;
     }
 }
 
-void printU64(u64 a) {
-    for (int i=7; i>=0; i--) {
-        for (int j=0; j<8; j++) {
-            printf("%d", (a >> (i*8+j)) & 1, i*8+j);
-        }printf("\n");
-    }printf("\n");
-}
-
 u64 reverseU64(u64 a) {
     u64 b = 0;
-    for (int i=0; i<64; i++) 
-        if ((a >> i) & 1) 
-            b |= ULL1 << (63-i);
+    for (u8 i=0; i<64; i += 8) {
+        b = (b << 8) | reverseU8Map[a & 0xFF];
+        a >>= 8;
+    }
     return b;
 }
+// u64 reverseU64(u64 a) {
+//     u64 b = 0;
+//     for (int i=0; i<64; i++) 
+//         if ((a >> i) & 1) 
+//             b |= ULL1 << (63-i);
+//     return b;
+// }
 
 void initSlidingPiecesTables() {
     initReverseU8Map();
@@ -85,7 +85,7 @@ u64 fieldAttackFormula(u64 field, u64 pos) {
 
 u64 reverseRaws(u64 field) {
     u64 reverseRowField = 0;
-    for (int i=0; i<64; i+=8) 
+    for (u8 i=0; i<64; i+=8) 
         reverseRowField |= (u64)reverseU8Map[(field >> i) & 0xFF] << i;
     return reverseRowField;
 }
@@ -97,7 +97,7 @@ u64 getDiagonalMovement(u64 field, u64 reversed, u8 pos) {
     reversed = fieldAttackFormula(reversed & mask2, reversedRowPos) & mask2;
 
     u64 antiDiagonalMoves = 0;
-    for (int i=0; i<64; i+=8) 
+    for (i8 i=0; i<64; i+=8) 
         antiDiagonalMoves |= (u64)reverseU8Map[(reversed >> i) & 0xFF] << i;
     return ( fieldAttackFormula(field & mask1, pos) & mask1 ) | antiDiagonalMoves ;
 }

@@ -13,16 +13,13 @@ int main() {
     char buffer[256];
     while (true) {
         scanf("%s", buffer);
-        // printf("Buffer: %s\n", buffer);
         if ((buffer[0] == 'm' && buffer[1] == 'v') || strncmp(buffer, "promote", 7) == 0) {
             scanf("%s %s", buffer+3, buffer+6);
             u8 pos1 = ((buffer[4]-'1')<<3) + buffer[3]-'a';
             u8 pos2 = ((buffer[7]-'1')<<3) + buffer[6]-'a';
             u8 promotingType = PROMOTING_NONE;
             if (strncmp(buffer, "mv", 2)) {
-                printf("Scanning type\n");
                 scanf(" %c", buffer);
-                printf("Buffer0: %c\n", buffer[0]);
                 switch (buffer[0]) {
                 case 'r':
                     promotingType = PROMOTING_ROOK;
@@ -38,7 +35,6 @@ int main() {
                     break;
                 }
             }
-            printf("Promoting: %d\n", promotingType);
             bool isMoved = movePiece(&board, pos1, pos2, promotingType);
             if (!isMoved) printf("Invalid move\n");
         } else if (strncmp(buffer, "save", 4) == 0) {
@@ -51,6 +47,10 @@ int main() {
             scanf("%s", buffer);
             u8 pos = ((buffer[1]-'1')<<3) + buffer[0]-'a';
             printU64(getPossibleMoves(&board, pos));
+        } else if (strncmp(buffer, "start-again", 11) == 0) {
+            saved = board;
+            board = initialGameState;
+            printf("New game started, if u wish to go back use command restore\n");
         }
 
         printf("Turn: %d\n", board.turn);

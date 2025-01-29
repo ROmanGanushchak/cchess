@@ -36,11 +36,10 @@ typedef struct {
 
 extern GameState initialGameState;
 
-bool checkIsCheck(GameState* state, bool side);
-// bool move(GameState* state, uint8_t pos1, uint8_t pos2);
-// array_pos getPossibleMoves(GameState* state, uint8_t x, uint8_t y);
 void startEngine();
 void printBoard(GameState* state);
-int getFigure(GameState* state, u8 pos);
+u8 getFigureBoard(GameState* state, u8 pos);
+bool isCkeckmate(GameState* state);
+void printU64(u64 a);
 
 #endif

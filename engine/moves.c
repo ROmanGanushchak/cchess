@@ -3,16 +3,7 @@
 #include "moves.h"
 #include "slidingMove.h"
 #include "figures.h"
-
-u8 getFigureBoard(GameState* state, u8 pos) {
-    if (state->figures[BPAWN] & (ULL1 << pos)) return BPAWN;
-    if (state->figures[BBISHOP] & (ULL1 << pos)) return BBISHOP;
-    if (state->figures[BQUEEN] & (ULL1 << pos)) return BQUEEN;
-    if (state->figures[BROOK] & (ULL1 << pos)) return BROOK;
-    if (state->figures[BKNIGHT] & (ULL1 << pos)) return BKNIGHT;
-    if (state->figures[BKING] & (ULL1 << pos)) return BKING;
-    return BOCCUPIED;
-}
+#include "engine.h"
 
 u8 getBoardFromPromotion(u8 promotionType) {
     switch(promotionType) {
@@ -28,8 +19,13 @@ u8 getBoardFromPromotion(u8 promotionType) {
     return 255;
 }
 
+void __removePiece(GameState* state, u8 pos, u8 boardType) {
+    state->figures[boardType] &= ~(ULL1 << pos);
+    state->figures[BOCCUPIED] &= ~(ULL1 << pos);
+    state->figures[BCOLOR] &= ~(ULL1 << pos);
+}
+
 void __movePiece(GameState* state, u8 pos1, u8 pos2, u8 boardType) {
-    printf("MovedFigureType: %d\n", boardType);
     bool side = (state->figures[BCOLOR] >> pos1) & 1;
     state->figures[BCOLOR] &= ~(ULL1 << pos1 | ULL1 << pos2);
     state->figures[BCOLOR] |= (u64)side << pos2;
@@ -37,50 +33,65 @@ void __movePiece(GameState* state, u8 pos1, u8 pos2, u8 boardType) {
     state->figures[boardType] = ( state->figures[boardType] & ~(ULL1 << pos1) ) | ( ULL1 << pos2 );
 }
 
-void __removePiece(GameState* state, u8 pos, u8 boardType) {
-    state->figures[boardType] &= ~(ULL1 << pos);
-    state->figures[BOCCUPIED] &= ~(ULL1 << pos);
-    state->figures[BCOLOR] &= ~(ULL1 << pos);
+
+/* Is not a complete move, is applicable only for futher check/checkmate checks, if figure captures other figure, both figures will be presented at same cell after that function */
+MoveType _movePiece(GameState* state, u8 pos1, u8 pos2, u8 boardType) {
+    bool side = (state->figures[BCOLOR] >> pos1) & 1;
+    bool isCapture = (state->figures[BOCCUPIED] >> pos2) & 1;
+    bool isSameFigureCaptured = (state->figures[boardType] >> pos2) & 1;
+    bool isEnPassage = boardType == BPAWN && (pos1 & 7) != (pos2 & 7) && !( (state->figures[BOCCUPIED] >> pos2) & 1 );
+
+    __movePiece(state, pos1, pos2, boardType);
+
+    if (isSameFigureCaptured) return MOVE_SAME_FIGURE_CAPTURED;
+    if (isCapture) return MOVE_CAPTURED;
+    if (isEnPassage) {
+        __removePiece(state, pos2-8*(side*2-1), BPAWN);
+        return MOVE_EN_PASSAGE;
+    }
+    return MOVE_REGULAR;
 }
+
+
+void _undoMovePiece(GameState* state, u8 pos1, u8 pos2, u8 boardType, MoveType type) {
+    __movePiece(state, pos2, pos1, boardType);
+    bool side = (state->figures[BCOLOR] >> pos1) & 1;
+
+    if (type == MOVE_SAME_FIGURE_CAPTURED || type == MOVE_CAPTURED) {
+        state->figures[BCOLOR] &= ~(ULL1 << pos2);
+        state->figures[BCOLOR] |= (u64)(!side) << pos2;
+        state->figures[BOCCUPIED] |= ULL1 << pos2;
+        if (type == MOVE_SAME_FIGURE_CAPTURED)
+            state->figures[boardType] |= ULL1 << pos2;
+    } else if (type == MOVE_EN_PASSAGE) {
+        u8 idx = pos2-8*(side*2-1);
+        state->figures[BOCCUPIED] |= ULL1 << idx;
+        state->figures[BPAWN] |= ULL1 << idx;
+        state->figures[BCOLOR] &= ~(ULL1 << idx);
+        state->figures[BCOLOR] |= (u64)(!side) << idx;
+    }
+}
+
 
 u64 removeInvalidMoves(GameState* state, u64 moves, u8 pos, u8 boardType) {
     bool side = (state->figures[BCOLOR] >> pos) & 1;
     u64 king = state->figures[BKING] & (side ? state->figures[BCOLOR] : ~state->figures[BCOLOR]);
     for (u8 i=0; i<64; i++) {
         if (!( (moves >> i) & 1 )) continue;
-        /* when figure captures other figure both figures are presented on the board, 
-        when we move back and both pieces have same type we need to restore the captured figure */
-        bool isFigureRestoreNeeded = (state->figures[boardType] >> i) & 1;
-        bool wasFigureBefore = (state->figures[BOCCUPIED] >> i) & 1;
-        bool isEnPassant = boardType == BPAWN && (pos & 7) != (i & 7) && !(state->figures[BOCCUPIED] & (ULL1 << i));
-        __movePiece(state, pos, i, boardType);
-        if (isEnPassant) 
-            state->figures[BOCCUPIED] &= ~(ULL1 << (i-8*(side*2-1)));
+        MoveType type = _movePiece(state, pos, i, boardType);
 
         if (getAttacks(state, !side) & king) 
             moves ^= ULL1 << i;
-
-        if (isEnPassant) 
-            state->figures[BOCCUPIED] |= ULL1 << (i-8*(side*2-1));
         
-        __movePiece(state, i, pos, boardType);
-        if (wasFigureBefore) {
-            state->figures[BOCCUPIED] |= ULL1 << i;
-            state->figures[BCOLOR] &= ~(ULL1 << i);
-            state->figures[BCOLOR] |= (u64)(!side) << i;
-            if (isFigureRestoreNeeded)
-                state->figures[boardType] |= ULL1 << i;
-        }
+        _undoMovePiece(state, pos, i, boardType, type);
     }
     return moves;
 }
 
+
 u64 getPossibleCastling(GameState* state, u64 attacked, u8 pos, bool side) {
     if (attacked & (ULL1 << pos)) return 0;
     u64 horizonal = horizontalMovement(state->figures[BOCCUPIED] | attacked, pos);
-    printf("Horizontal:");
-    for (int i=0; i<8; i++) printf("%d", (horizonal >> i)&1);
-    printf("\n");
     u64 res = 0;
     if (side) {
         if (state->doubleCastleWhite && horizonal & (1 << 7))
@@ -96,6 +107,7 @@ u64 getPossibleCastling(GameState* state, u64 attacked, u8 pos, bool side) {
     return res;
 }
 
+
 u64 getPossibleMoves(GameState* state, u8 pos) {
     u64 res = 0;
     u64 occupied = state->figures[BOCCUPIED];
@@ -107,8 +119,6 @@ u64 getPossibleMoves(GameState* state, u8 pos) {
     switch (boardType) {
     case BKING:
         u64 attacked = getAttacks(state, !side);
-        printf("Attacked:\n");
-        printU64(attacked);
         return (possibleKingAttacks(state, side) | getPossibleCastling(state, attacked, pos, side)) & ~attacked & ~allies;
     case BPAWN:
         u64 pawn = ULL1 << pos;
@@ -116,8 +126,8 @@ u64 getPossibleMoves(GameState* state, u8 pos) {
         u64 forward;
         if (side) {
             res = ((pawn & ~LEFT_EDGE) << 7 | (pawn & ~(LEFT_EDGE << 7)) << 9) & enemies;
-            if (state->lastMove.from >> 3 == 6 && state->lastMove.to >> 3 == 4 && state->figures[BPAWN] & (ULL1 << state->lastMove.to)) 
-                if (abs(pos - state->lastMove.to) == 1 && pos >> 3 == state->lastMove.to >> 3)
+            if ((state->lastMove.from >> 3) == 6 && (state->lastMove.to >> 3) == 4 && state->figures[BPAWN] & (ULL1 << state->lastMove.to)) 
+                if (abs((int)pos - state->lastMove.to) == 1 && (pos >> 3) == (state->lastMove.to >> 3)) 
                     res |= ULL1 << (state->lastMove.to+8);
             
             forward = (pawn << 8) & ~occupied;
@@ -126,7 +136,7 @@ u64 getPossibleMoves(GameState* state, u8 pos) {
             res = ((pawn & ~LEFT_EDGE) >> 9 | (pawn & ~(LEFT_EDGE << 7)) >> 7) & enemies;
             if (state->lastMove.from >> 3 == 1 && state->lastMove.to >> 3 == 3 && state->figures[BPAWN] & (ULL1 << state->lastMove.to)) 
                 if (abs(pos - state->lastMove.to) == 1 && pos >> 3 == state->lastMove.to >> 3)
-                    res |= ULL1 << (state->lastMove.to-8); // because of taking on the passage check might occure, that wont be checked by the removeInvalid
+                    res |= ULL1 << (state->lastMove.to-8);
             
             forward = (pawn >> 8) & ~occupied;
             forward |= ((forward >> 8) & ((u64)0xFF << 32)) & ~occupied;
@@ -146,35 +156,10 @@ u64 getPossibleMoves(GameState* state, u8 pos) {
         res = possibleKnightAttacks(ULL1 << pos, 0, false) & ~allies;
         break;
     }
-    printf("AllMoves:\n");
-    printU64(res);
+
     return removeInvalidMoves(state, res, pos, boardType);
 }
 
-bool checkCkeckmate(GameState* state, bool depth) {
-    bool side = state->turn;
-    u64 attacked = getAttacks(state, !side);
-    u64 allies = state->figures[BOCCUPIED] & (side ? state->figures[BCOLOR] : ~state->figures[BCOLOR]);
-    u64 king = state->figures[BKING] & (side ? state->figures[BCOLOR] : ~state->figures[BCOLOR]);
-    if (!( king & attacked && (possibleKingAttacks(state, side) & ~attacked & ~allies) == 0 ))
-        return false;
-    if (depth == 0) return true;
-
-    bool res = true;
-    for (int i=0; i<64 && res; i++) {
-        if ((( state->figures[BOCCUPIED] >> i ) & 1) == 0) continue;
-        u64 moves = getPossibleMoves(state, i);
-        u8 pieceType = getFigureBoard(state, i);
-        for (int j=0; j<64 && res; j++) {
-            if (((moves >> j) & 1) == 0) continue;
-            __movePiece(state, i, j, pieceType); // add check for isEnPassant
-            res &= checkCkeckmate(state, depth-1);
-            __movePiece(state, j, i, pieceType);
-        }
-    }
-
-    return res;
-}
 
 bool movePiece(GameState* state, u8 pos1, u8 pos2, u8 promotionType) {
     if (!( (state->figures[BOCCUPIED] >> pos1) & 1 ) || ((state->figures[BCOLOR] >> pos1) & 1) != state->turn || state->isMate || pos1 == pos2)
@@ -182,15 +167,12 @@ bool movePiece(GameState* state, u8 pos1, u8 pos2, u8 promotionType) {
     bool isMove = true;
     
     u64 possibleMoves = getPossibleMoves(state, pos1);
-    printf("Possible %d -> %d:\n", pos1, pos2);
-    printU64(possibleMoves);
-    if (!( (possibleMoves >> pos2) & 1)) {printf("Impos\n"); return false;}
+    if (!( (possibleMoves >> pos2) & 1)) return false;
+
     u8 boardType = getFigureBoard(state, pos1);
     bool side = (state->figures[BCOLOR] >> pos1) & 1;
 
     if (boardType == BKING) {
-        printf("Castling:\n");
-        printU64(getPossibleCastling(state, getAttacks(state, side), pos1, side));
         if (side && pos1 == 4) {
             if (pos2 == 6 && state->doubleCastleWhite) {
                 __movePiece(state, 4, 6, BKING);
@@ -229,28 +211,32 @@ bool movePiece(GameState* state, u8 pos1, u8 pos2, u8 promotionType) {
     else if (boardType == BPAWN) {
         if ((side && (pos2 >> 3) == 7) || (!side && (pos2 >> 3) == 0)) {
             u8 newPiece = getBoardFromPromotion(promotionType);
-            printf("NewPiece: %d\n", newPiece);
             if (newPiece == 255) return false;
-            __movePiece(state, pos1, pos2, BPAWN);
+            _movePiece(state, pos1, pos2, BPAWN);
             state->figures[BPAWN] &= ~(ULL1 << pos2);
             state->figures[newPiece] |= ULL1 << pos2;
             isMove = false;
-        } else if ((pos1 & 7) != (pos2 & 7) && ( (state->figures[BOCCUPIED] >> pos2) & 1 ) == 0) 
-            __removePiece(state, pos2-8*(2*side-1), BPAWN);
+        }
     }
     
     if (isMove) {
-        printf("Moving\n");
-        if ((state->figures[BOCCUPIED] >> pos2) & 1) {
-            printf("Negating %d\n", pos2);
-            for (int i=0; i<BOARD_COUNT; i++) 
+        if ((state->figures[BOCCUPIED] >> pos2) & 1) 
+            for (u16 i=0; i<BOARD_COUNT; i++) 
                 state->figures[i] &= ~(ULL1 << pos2);
-        }
-        __movePiece(state, pos1, pos2, boardType);
+        _movePiece(state, pos1, pos2, boardType);
     }
 
     state->turn = !state->turn;
-    state->lastMove.from = pos1; 
+    state->lastMove.from = pos1;
     state->lastMove.to = pos2;
+
+    if (isCkeckmate(state)) {
+        state->isMate = true;
+        if (state->turn == 1)
+            printf("Black won\n");
+        else 
+            printf("White won\n");
+    }
+
     return true;
 }

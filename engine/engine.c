@@ -5,6 +5,7 @@
 
 #include "figures.h"
 #include "slidingMove.h"
+#include "moves.h"
 
 GameState initialGameState;
 
@@ -24,58 +25,30 @@ void initInitialGameState() {
     initialGameState.figures[BQUEEN]  = 0x8  | ((u64)0x8 << 56);
 }
 
-bool checkIsCheck(GameState* state, bool side) {
-
-}
-
-/* Just notes
-move types:
-regular move (taking on the passage)
-castling
-promoting a pawn
-*/
-// bool movePiece(GameState* stateP, u8 pos1, u8 pos2) {
-//     assert(pos1 < 64 && pos2 < 64);
-//     GameState state = *stateP;
-//     if (!((state.figures[BOCCUPIED] >> pos1) & 1)) return false;
-//     if (!(((state.figures[BCOLOR] >> pos1) & 1) ^ state.turn)) return false;
-
-//     // for white for now
-//     if ((state.figures[BPAWN] >> pos1) & 1) {
-//         if (pos2 == pos1 + 8);
-//     }
-
-//     if (checkIsCheck(stateP, stateP->turn)) return false;
-//     return true;
-// }
-
-// array_pos getPossibleMoves(GameState* state, uint8_t x, uint8_t y) {
-    
-// }
-
 void startEngine() {
     initInitialGameState();
     initSlidingPiecesTables();
 }
 
 void printBoard(GameState* state) {
-    for (int i=7; i>=0; i--) {
+    for (i8 i=7; i>=0; i--) {
         printf("\033[38;5;195m%d | \033[0m", i+1);
-        for (int j=0; j<8; j++) {
-            int idx = i*8+j;
+        for (i8 j=0; j<8; j++) {
+            u8 idx = i*8+j;
             if (( ( state->figures[BOCCUPIED] >> idx ) & 1) == 0) {
                 printf(". ");
                 continue;
             }
+            u8 cnt = 0;
             char type = '\0';
-            if (( state->figures[BBISHOP] >> idx ) & 1) type = 'b';
-            if (( state->figures[BROOK] >> idx ) & 1) type = 'r';
-            if (( state->figures[BQUEEN] >> idx ) & 1) type = 'q';
-            if (( state->figures[BKNIGHT] >> idx ) & 1) type = 'k';
-            if (( state->figures[BKING] >> idx ) & 1) type = 'm';
-            if (( state->figures[BPAWN] >> idx ) & 1) type = 'p';
-            if (type == '\0') {
-                printf("\nINCORRECT BOARD %d\n", idx); 
+            if (( state->figures[BBISHOP] >> idx ) & 1) {type = 'b'; cnt++;}
+            if (( state->figures[BROOK] >> idx ) & 1) {type = 'r'; cnt++;}
+            if (( state->figures[BQUEEN] >> idx ) & 1) {type = 'q'; cnt++;}
+            if (( state->figures[BKNIGHT] >> idx ) & 1) {type = 'k'; cnt++;}
+            if (( state->figures[BKING] >> idx ) & 1) {type = 'm'; cnt++;}
+            if (( state->figures[BPAWN] >> idx ) & 1) {type = 'p'; cnt++;}
+            if (cnt != 1) {
+                printf("\nINCORRECT BOARD %d, cnt: %d\n", idx, cnt); 
                 return;
             }
             if (( state->figures[BCOLOR] >> idx ) & 1) 
@@ -86,21 +59,42 @@ void printBoard(GameState* state) {
         printf("\n");
     }
     printf("    \033[38;5;195m");
-    for (int i=1; i<=7; i++)
+    for (u8 i=1; i<=7; i++)
         printf("--", i);
     printf("-\n    ");
-    for (int i=0; i<8; i++)
+    for (u8 i=0; i<8; i++)
         printf("%c ", 'a'+i);
     printf("\033[0m\n");
 }
 
-int getFigure(GameState* state, u8 pos) {
-    if (( ( state->figures[BOCCUPIED] >> pos ) & 1) == 0) return 0;
-    if ((state->figures[BPAWN] >> pos) & 1) return BPAWN;
-    if ((state->figures[BBISHOP] >> pos) & 1) return BBISHOP;
-    if ((state->figures[BKING] >> pos) & 1) return BKING;
-    if ((state->figures[BKNIGHT] >> pos) & 1) return BKNIGHT;
-    if ((state->figures[BROOK] >> pos) & 1) return BROOK;
-    if ((state->figures[BQUEEN] >> pos) & 1) return BQUEEN;
-    return -1;
+u8 getFigureBoard(GameState* state, u8 pos) {
+    if (state->figures[BPAWN] & (ULL1 << pos)) return BPAWN;
+    if (state->figures[BBISHOP] & (ULL1 << pos)) return BBISHOP;
+    if (state->figures[BQUEEN] & (ULL1 << pos)) return BQUEEN;
+    if (state->figures[BROOK] & (ULL1 << pos)) return BROOK;
+    if (state->figures[BKNIGHT] & (ULL1 << pos)) return BKNIGHT;
+    if (state->figures[BKING] & (ULL1 << pos)) return BKING;
+    return BOCCUPIED;
+}
+
+bool isCkeckmate(GameState* state) {
+    bool side = state->turn;
+    u64 attacked = getAttacks(state, !side);
+    u64 allies = state->figures[BOCCUPIED] & (side ? state->figures[BCOLOR] : ~state->figures[BCOLOR]);
+    u64 king = state->figures[BKING] & (side ? state->figures[BCOLOR] : ~state->figures[BCOLOR]);
+    if (!( king & attacked && (possibleKingAttacks(state, side) & ~attacked & ~allies) == 0 ))
+        return false;
+
+    for (u8 i=0; i<64; i++) 
+        if (( allies >> i ) & 1 && getPossibleMoves(state, i)) 
+            return false;
+    return true;
+}
+
+void printU64(u64 a) {
+    for (i8 i=7; i>=0; i--) {
+        for (u8 j=0; j<8; j++) {
+            printf("%d", (a >> (i*8+j)) & 1, i*8+j);
+        }printf("\n");
+    }printf("\n");
 }
