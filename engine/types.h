@@ -14,4 +14,10 @@
 
 int abs(int a);
 
+typedef struct {
+    u32 len;
+    u32 cap;
+    char* arr;
+} STR;
+
 #endif

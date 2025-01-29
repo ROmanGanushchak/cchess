@@ -4,6 +4,7 @@
 #include "figures.h"
 #include "slidingMove.h"
 #include "moves.h"
+#include "converter.h"
 
 int main() {
     startEngine();
@@ -51,6 +52,14 @@ int main() {
             saved = board;
             board = initialGameState;
             printf("New game started, if u wish to go back use command restore\n");
+        } else if (strncmp(buffer, "export", 6) == 0) {
+            STR str = convertStateToFEN(&board);
+            printf("Game: %.*s\n", str.len, str.arr);
+        } else if (strncmp(buffer, "import", 6) == 0) {
+            STR str = {.len=0, .cap=256, .arr=buffer};
+            fgets(str.arr, str.cap, stdin);
+            str.len = strlen(str.arr);
+            board = convertFENToState(str);
         }
 
         printf("Turn: %d\n", board.turn);

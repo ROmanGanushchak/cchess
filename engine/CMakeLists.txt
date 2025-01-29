@@ -4,6 +4,7 @@ set(ENGINE_SOURCES
     slidingMove.c
     moves.c
     types.c
+    converter.c
 )
 
 add_library(engine STATIC ${ENGINE_SOURCES})
