@@ -97,13 +97,12 @@ GameState convertFENToState(STR fen) {
     GameState state = {.doubleCastleBlack=0, .doubleCastleWhite=0, 
         .thribleCastleBlack=0, .thribleCastleWhite=0, 
         .isCheck=0, .isMate=0, .lastMove=(MOVE){.from=0, .to=0}};
-    printf("Got: %s\n", fen.arr);
+    
     memset(&state.figures, 0, BOARD_COUNT*sizeof(state.figures[BOCCUPIED]));
     i32 idx = 56;
     i32 i=0;
     for (; i<fen.len && fen.arr[i] == ' '; i++);
     for (; idx >= 0; i++) {
-        printf("%d\n", idx);
         if (i >= fen.len) return (GameState){};
         if (fen.arr[i] >= '0' && fen.arr[i] <= '9') {
             idx += fen.arr[i] - '0';
@@ -120,20 +119,15 @@ GameState convertFENToState(STR fen) {
             return (GameState){};
         }
     }
-    printf("Map loaded\n");
-
-    printf("%c\n", fen.arr[i]);
 
     if (fen.arr[i++] != ' ') return (GameState){};
     for (; i<fen.len && fen.arr[i] == ' '; i++);
 
-    printf("Side: %c\n", fen.arr[i]);
     if (fen.arr[i] == 'w') state.turn = 1;
     else if (fen.arr[i] == 'b') state.turn = 0;
     else return (GameState){};
     i++;
 
-    printf("Side setted\n");
     for (; i<fen.len && fen.arr[i] == ' '; i++);
 
     for (; fen.arr[i] != '-' && fen.arr[i] != ' '; i++) {
@@ -144,7 +138,6 @@ GameState convertFENToState(STR fen) {
         else if (fen.arr[i] == 'q') state.thribleCastleBlack = 1;
         else return (GameState){};
     }
-    printf("Checks setted\n");
 
     for (; i<fen.len && fen.arr[i] == ' '; i++);
     if (i >= fen.len) return (GameState) {};
@@ -152,7 +145,6 @@ GameState convertFENToState(STR fen) {
     if (fen.arr[i] == '-') return state;
     if (fen.arr[i] < 'a' || fen.arr[i] > 'h' || fen.arr[i+1] < '1' || fen.arr[i+1] > '8')
         return (GameState){};
-    printf("EmPessage check passwed\n");
     u8 pos = ( (fen.arr[i+1] - '1') << 3 ) | (fen.arr[i] - 'a');
     bool side = (pos >> 3) == 2;
     state.lastMove = (side) ? (MOVE){.from=8+(pos&7), .to=16+(pos&7)} : (MOVE){.from=48+(pos&7), .to=32+(pos&7)};
