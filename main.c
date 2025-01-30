@@ -9,7 +9,7 @@
 int main() {
     startEngine();
 
-    GameState board = initialGameState, saved = initialGameState;
+    BoardState board = initialBoardState, saved = initialBoardState;
     printBoard(&board);
     char buffer[256];
     while (true) {
@@ -36,8 +36,30 @@ int main() {
                     break;
                 }
             }
-            bool isMoved = movePiece(&board, pos1, pos2, promotingType);
-            if (!isMoved) printf("Invalid move\n");
+            MOVE_RET st = movePiece(&board, pos1, pos2, promotingType);
+            if (!st.isValid) {
+                printf("Invalid move\n");
+            } else 
+                switch(st.state) {
+                case GAME_BLACK_CHECK:
+                    printf("Black king is checked\n");
+                    break;
+                case GAME_WHITE_CHECK:
+                    printf("White king is checked\n");
+                    break;
+                case GAME_BLACK_WON:
+                    printf("Black won, white king is chackmated\n");
+                    break;
+                case GAME_WHITE_WON:
+                    printf("White won, black king is chackmated\n");
+                    break;
+                case GAME_DRAW:
+                    printf("Game ended with draw\n");
+                    break;
+                case GAME_REGULAR:
+                    printf("Turn: %d\n", board.turn);
+                    break;
+                }
         } else if (strncmp(buffer, "save", 4) == 0) {
             saved = board;
             printf("Saved\n");
@@ -50,7 +72,7 @@ int main() {
             printU64(getPossibleMoves(&board, pos));
         } else if (strncmp(buffer, "start-again", 11) == 0) {
             saved = board;
-            board = initialGameState;
+            board = initialBoardState;
             printf("New game started, if u wish to go back use command restore\n");
         } else if (strncmp(buffer, "export", 6) == 0) {
             STR str = convertStateToFEN(&board);
@@ -62,7 +84,6 @@ int main() {
             board = convertFENToState(str);
         }
 
-        printf("Turn: %d\n", board.turn);
         printBoard(&board);
         printf("\n");
     }

@@ -19,7 +19,12 @@ typedef enum {
     MOVE_CAPTURED,
 } MoveType;
 
-u64 getPossibleMoves(GameState* state, u8 pos);
-bool movePiece(GameState* state, u8 pos1, u8 pos2, u8 promotionType);
+typedef struct {
+    bool isValid;
+    GAME_STATES state;
+} MOVE_RET;
+
+u64 getPossibleMoves(BoardState* board, u8 pos);
+MOVE_RET movePiece(BoardState* board, u8 pos1, u8 pos2, u8 promotionType);
 
 #endif

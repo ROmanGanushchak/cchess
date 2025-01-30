@@ -21,25 +21,37 @@ typedef enum {
     BQUEEN
 } Boards;
 
+typedef enum {
+    GAME_WHITE_WON,
+    GAME_BLACK_WON,
+    GAME_DRAW,
+    GAME_WHITE_CHECK,
+    GAME_BLACK_CHECK,
+    GAME_REGULAR,
+} GAME_STATES;
+
 #define BOARD_COUNT 8
 typedef struct {
     u64 figures[BOARD_COUNT];
     MOVE lastMove;
+    MOVE lastMoveBefore;
+    u8 halfMoves;
+    u8 repeatCount : 3;
     bool turn : 1; // 1 - white, 0 - black
-    bool isCheck : 1;
-    bool isMate : 1;
+    bool isEnd: 1;
     bool doubleCastleWhite : 1;
     bool doubleCastleBlack : 1;
     bool thribleCastleWhite : 1;
     bool thribleCastleBlack : 1;
-} GameState;
+} BoardState;
 
-extern GameState initialGameState;
+extern BoardState initialBoardState;
 
 void startEngine();
-void printBoard(GameState* state);
-u8 getFigureBoard(GameState* state, u8 pos);
-bool isCkeckmate(GameState* state);
+void printBoard(BoardState* board);
+u8 getFigureBoard(BoardState* board, u8 pos);
+GAME_STATES updateGameState(BoardState* board, u8 pos1, u8 pos2, bool isCaptureOrAdvance);
+bool isGameEnd(GAME_STATES state);
 void printU64(u64 a);
 
 #endif

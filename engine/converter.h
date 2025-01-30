@@ -3,8 +3,8 @@
 #include "types.h"
 #include "engine.h"
 
-char getPieceLetter(GameState* state, u8 pos);
-STR convertStateToFEN(GameState* state);
-GameState convertFENToState(STR fen);
+char getPieceLetter(BoardState* board, u8 pos);
+STR convertStateToFEN(BoardState* board);
+BoardState convertFENToState(STR fen);
 
 #endif
