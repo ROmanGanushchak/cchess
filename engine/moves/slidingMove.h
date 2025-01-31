@@ -1,7 +1,7 @@
 #ifndef SLIDING_MOVE_H
 #define SLIDING_MOVE_H
 
-#include "types.h"
+#include "../types.h"
 
 extern u8 reverseU8Map[256];
 

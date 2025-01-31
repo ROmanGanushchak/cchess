@@ -20,4 +20,10 @@ typedef struct {
     char* arr;
 } STR;
 
+#define DEFINE_PAIR(T, R, Name) \
+typedef struct { \
+    T first; \
+    R second; \
+} Name;
+
 #endif

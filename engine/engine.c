@@ -1,10 +1,8 @@
-#include "engine.h"
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>
 
-#include "figures.h"
-#include "slidingMove.h"
+#include "engine.h"
 #include "moves.h"
 
 BoardState initialBoardState;
@@ -63,30 +61,14 @@ GAME_STATES isCheckmate(BoardState* board) {
     return GAME_DRAW;   
 }
 
-GAME_STATES updateGameState(BoardState* board, u8 pos1, u8 pos2, bool isCaptureOrAdvance) {
+GAME_STATES getGameState(BoardState* board) {
     GAME_STATES state = isCheckmate(board);
     if (isGameEnd(state)) {
         board->isEnd = true;
         return state;
     }
-    if (isCaptureOrAdvance)
-        board->halfMoves = 0;
-    else if (++board->halfMoves == 100) {
-        board->isEnd = true;
+    if (board->halfMoves >= 100 || board->repeatCount >= 6)
         return GAME_DRAW;
-    }
-
-    if (board->lastMoveBefore.from == pos2 && board->lastMoveBefore.to == pos1) {
-        if (++board->repeatCount == 6) {
-            board->isEnd = true; 
-            state = GAME_DRAW;
-        }
-    } else board->repeatCount = 0;
-
-    board->turn = !board->turn;
-    board->lastMoveBefore = board->lastMove;
-    board->lastMove.from = pos1;
-    board->lastMove.to = pos2;
     return state;
 }
 
@@ -143,4 +125,16 @@ u8 getFigureBoard(BoardState* board, u8 pos) {
     if (board->figures[BKNIGHT] & (ULL1 << pos)) return BKNIGHT;
     if (board->figures[BKING] & (ULL1 << pos)) return BKING;
     return BOCCUPIED;
+}
+
+FIGURE getFigureFromBoard(Boards board) {
+    switch (board) {
+    case BKING: return FKING;
+    case BQUEEN: return FQUEEN;
+    case BROOK: return FROOK;
+    case BBISHOP: return FBISHOP;
+    case BKNIGHT: return FKNIGHT;
+    case BPAWN: return FPAWN;
+    }
+    assert(1 == 1 && "Incorrect board");
 }

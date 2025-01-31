@@ -156,6 +156,8 @@
     "io_context": "cpp",
     "netfwd": "cpp",
     "socket": "cpp",
-    "slidingmove.h": "c"
-  }
+    "slidingmove.h": "c",
+    "unsafemoves.h": "c"
+  },
+  "C_Cpp.errorSquiggles": "disabled"
 }

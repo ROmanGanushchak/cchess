@@ -1,5 +1,6 @@
 #ifndef ENGINE_H
 #define ENGINE_H
+#include <assert.h>
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -20,6 +21,15 @@ typedef enum {
     BROOK,
     BQUEEN
 } Boards;
+
+typedef enum {
+    FKING,
+    FQUEEN,
+    FROOK,
+    FBISHOP,
+    FKNIGHT,
+    FPAWN,
+} FIGURE;
 
 typedef enum {
     GAME_WHITE_WON,
@@ -50,8 +60,9 @@ extern BoardState initialBoardState;
 void startEngine();
 void printBoard(BoardState* board);
 u8 getFigureBoard(BoardState* board, u8 pos);
-GAME_STATES updateGameState(BoardState* board, u8 pos1, u8 pos2, bool isCaptureOrAdvance);
+GAME_STATES getGameState(BoardState* board);
 bool isGameEnd(GAME_STATES state);
 void printU64(u64 a);
+FIGURE getFigureFromBoard(Boards board);
 
 #endif

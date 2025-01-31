@@ -4,7 +4,7 @@
 #include <string.h>
 #include <math.h>
 
-#include "converter.h"
+#include "fen.h"
 #include "engine.h"
 
 char getPieceLetter(BoardState* board, u8 pos) {

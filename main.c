@@ -1,12 +1,12 @@
 #include <stdio.h>
 #include <string.h>
 #include "engine.h"
-#include "figures.h"
-#include "slidingMove.h"
 #include "moves.h"
-#include "converter.h"
+#include "fen.h"
+#include "pgn.h"
 
 int main() {
+    printf("HistSize: %d\n", sizeof(PGN_MOVE));
     startEngine();
 
     BoardState board = initialBoardState, saved = initialBoardState;

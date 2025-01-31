@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "types.h"
+#include "../types.h"
 
 u64 diagonalMask[15];
 u8 reverseU8Map[256];
@@ -21,13 +21,6 @@ u64 reverseU64(u64 a) {
     }
     return b;
 }
-// u64 reverseU64(u64 a) {
-//     u64 b = 0;
-//     for (int i=0; i<64; i++) 
-//         if ((a >> i) & 1) 
-//             b |= ULL1 << (63-i);
-//     return b;
-// }
 
 void initSlidingPiecesTables() {
     initReverseU8Map();

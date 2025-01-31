@@ -1,6 +1,6 @@
 #include <stdio.h>
-#include "figures.h"
-#include "types.h"
+#include "attacks.h"
+#include "../types.h"
 #include "slidingMove.h"
 
 const u64 SetNoRightColumn = ~(LEFT_EDGE << 7);
@@ -51,13 +51,3 @@ u64 getAttacks(BoardState* board, bool side) {
 
     return res;
 }
-
-
-
-// u64 possibleMovesKing(BoardState* board);
-// u64 possibleMovesQuene(BoardState* board);
-// u64 possibleMovesRook(BoardState* board);
-// u64 possibleMovesBishop(BoardState* board);
-// u64 possibleMovesKnight(BoardState* board);
-// u64 possibleMovesPawns(BoardState* board);
-
