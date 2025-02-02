@@ -5,6 +5,7 @@
 #include "moves.h"
 
 void __removePiece(BoardState* board, u8 pos, u8 boardType);
+void __spawnPiece(BoardState*, u8 pos, u8 boardType, bool side);
 void __movePiece(BoardState* board, u8 pos1, u8 pos2, u8 boardType);
 
 /* Is not a complete move, is applicable only for futher check/checkmate checks, if figure captures other figure, both figures will be presented at same cell after that function */

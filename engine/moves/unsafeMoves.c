@@ -8,6 +8,13 @@ void __removePiece(BoardState* board, u8 pos, u8 boardType) {
     board->figures[BCOLOR] &= ~(ULL1 << pos);
 }
 
+void __spawnPiece(BoardState* board, u8 pos, u8 boardType, bool side) {
+    board->figures[BOCCUPIED] |= ULL1 << pos;
+    board->figures[BCOLOR] &= ~(ULL1 << pos);
+    board->figures[BCOLOR] |= (u64)side << pos;
+    board->figures[boardType] |= ULL1 << pos;
+}
+
 void __movePiece(BoardState* board, u8 pos1, u8 pos2, u8 boardType) {
     bool side = (board->figures[BCOLOR] >> pos1) & 1;
     board->figures[BCOLOR] &= ~(ULL1 << pos1 | ULL1 << pos2);

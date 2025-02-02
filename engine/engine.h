@@ -49,17 +49,17 @@ typedef struct {
     u8 repeatCount : 3;
     bool turn : 1; // 1 - white, 0 - black
     bool isEnd: 1;
-    bool doubleCastleWhite : 1;
-    bool doubleCastleBlack : 1;
-    bool thribleCastleWhite : 1;
-    bool thribleCastleBlack : 1;
+    bool longCastleWhite : 1;
+    bool longCastleBlack : 1;
+    bool shortCastleWhite : 1;
+    bool shortCastleBlack : 1;
 } BoardState;
 
 extern BoardState initialBoardState;
 
 void startEngine();
 void printBoard(BoardState* board);
-u8 getFigureBoard(BoardState* board, u8 pos);
+Boards getFigureBoard(BoardState* board, u8 pos);
 GAME_STATES getGameState(BoardState* board);
 bool isGameEnd(GAME_STATES state);
 void printU64(u64 a);

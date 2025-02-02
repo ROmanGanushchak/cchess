@@ -4,14 +4,16 @@
 
 #include "engine.h"
 #include "moves.h"
+#include "attacks.h"
+#include "slidingMove.h"
 
 BoardState initialBoardState;
 
 void initInitialBoardState() {
     initialBoardState = (BoardState) {.halfMoves = 0, .turn = 1, 
-        .isEnd=0, .doubleCastleBlack=1, 
-        .doubleCastleWhite=1, .thribleCastleBlack=1, 
-        .thribleCastleWhite=1};
+        .isEnd=0, .shortCastleBlack=1, 
+        .shortCastleWhite=1, .longCastleBlack=1, 
+        .longCastleWhite=1};
     
     initialBoardState.figures[BCOLOR] = 0xFFFF;
     initialBoardState.figures[BOCCUPIED] = 0xFFFF | ((u64)0xFFFF << 48);
@@ -117,7 +119,7 @@ void printBoard(BoardState* board) {
     printf("\033[0m\n");
 }
 
-u8 getFigureBoard(BoardState* board, u8 pos) {
+Boards getFigureBoard(BoardState* board, u8 pos) {
     if (board->figures[BPAWN] & (ULL1 << pos)) return BPAWN;
     if (board->figures[BBISHOP] & (ULL1 << pos)) return BBISHOP;
     if (board->figures[BQUEEN] & (ULL1 << pos)) return BQUEEN;

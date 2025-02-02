@@ -1,4 +1,7 @@
 #include "moves.h"
+#include "attacks.h"
+#include "slidingMove.h"
+#include "unsafeMoves.h"
 
 u8 getBoardFromPromotion(u8 promotionType) {
     switch(promotionType) {
@@ -34,14 +37,14 @@ u64 getPossibleCastling(BoardState* board, u64 attacked, u8 pos, bool side) {
     u64 horizonal = horizontalMovement(board->figures[BOCCUPIED] | attacked, pos);
     u64 res = 0;
     if (side) {
-        if (board->doubleCastleWhite && horizonal & (1 << 7))
+        if (board->shortCastleWhite && horizonal & (1 << 7))
             res |= 1 << 6;
-        if (board->thribleCastleWhite && horizonal & 1)
+        if (board->longCastleWhite && horizonal & 1)
             res |= 1 << 2;
     } else {
-        if (board->doubleCastleBlack && horizonal & (ULL1 << 63))
+        if (board->shortCastleBlack && horizonal & (ULL1 << 63))
             res |= ULL1 << 62;
-        if (board->thribleCastleBlack && horizonal & (ULL1 << 56))
+        if (board->longCastleBlack && horizonal & (ULL1 << 56))
             res |= ULL1 << 58;
     }
     return res;

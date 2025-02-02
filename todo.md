@@ -1,11 +1,15 @@
 ToDo:
-1. Make the connection of libs in engine and moves
-2. Correct bugs after the movePiece changes
-3. Make invertMove for PGN
-4. Add forward and back with MOVE_DETAILS
+1. Make invertMove for PGN
+    1. Make List and add command for movement
+    2. Fix lastMoveBefore inconsistency in invertMove
+    3. Test invert move for correctness
+2. Add forward and back with MOVE_DETAILS
+3. Add forks for vatiations(ok for at most one)
+4. Add combined struct for board and hist
 
 Additional:
 1. Think about validating only actual move in movePiece, removeInvalid only for the move itself
+2. Rework folders, make it better and formolize common
 
 Add to consider project finished:
 1. PGN exporter and importer

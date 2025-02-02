@@ -63,10 +63,10 @@ STR convertStateToFEN(BoardState* board) {
     str.arr[str.len++] = ' ';
 
     u32 lenBiforeCastleAdded = str.len;
-    if (board->doubleCastleWhite) str.arr[str.len++] = 'K';
-    if (board->thribleCastleWhite) str.arr[str.len++] = 'Q';
-    if (board->doubleCastleBlack) str.arr[str.len++] = 'k';
-    if (board->thribleCastleBlack) str.arr[str.len++] = 'q';
+    if (board->shortCastleWhite) str.arr[str.len++] = 'K';
+    if (board->longCastleWhite) str.arr[str.len++] = 'Q';
+    if (board->shortCastleBlack) str.arr[str.len++] = 'k';
+    if (board->longCastleBlack) str.arr[str.len++] = 'q';
     if (lenBiforeCastleAdded == str.len) str.arr[str.len++] = '-';
     str.arr[str.len++] = ' ';
 
@@ -104,8 +104,8 @@ STR convertStateToFEN(BoardState* board) {
 
 // add more validation
 BoardState convertFENToState(STR fen) {
-    BoardState board = {.doubleCastleBlack=0, .doubleCastleWhite=0, 
-        .thribleCastleBlack=0, .thribleCastleWhite=0, 
+    BoardState board = {.shortCastleBlack=0, .shortCastleWhite=0, 
+        .longCastleBlack=0, .longCastleWhite=0, 
         .isEnd=0, .lastMove=(MOVE){.from=0, .to=0}};
     
     memset(&board.figures, 0, BOARD_COUNT*sizeof(board.figures[BOCCUPIED]));
@@ -141,10 +141,10 @@ BoardState convertFENToState(STR fen) {
     board.halfMoves = halfMoves;
     board.turn = turn == 'w';
     for (u8 j=0; j<4 && castles[j] != '\0' && castles[0] != '-'; j++) {
-        if (castles[j] == 'K') board.doubleCastleWhite = 1;
-        else if (castles[j] == 'k') board.doubleCastleBlack = 1;
-        else if (castles[j] == 'Q') board.thribleCastleWhite = 1;
-        else if (castles[j] == 'q') board.thribleCastleBlack = 1;
+        if (castles[j] == 'K') board.shortCastleWhite = 1;
+        else if (castles[j] == 'k') board.shortCastleBlack = 1;
+        else if (castles[j] == 'Q') board.longCastleWhite = 1;
+        else if (castles[j] == 'q') board.longCastleBlack = 1;
         else return (BoardState){};
     }
 

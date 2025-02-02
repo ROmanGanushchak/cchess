@@ -157,7 +157,8 @@
     "netfwd": "cpp",
     "socket": "cpp",
     "slidingmove.h": "c",
-    "unsafemoves.h": "c"
+    "unsafemoves.h": "c",
+    "attacks.h": "c"
   },
   "C_Cpp.errorSquiggles": "disabled"
 }
