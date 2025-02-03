@@ -50,12 +50,11 @@ u64 getPossibleCastling(BoardState* board, u64 attacked, u8 pos, bool side) {
     return res;
 }
 
-u64 getPossibleMoves(BoardState* board, u8 pos) {
+u64 getCandidateMoves(BoardState* board, Boards boardType, u8 pos) {
     u64 res = 0;
     u64 occupied = board->figures[BOCCUPIED];
     bool side = (board->figures[BCOLOR] >> pos) & 1;
     u64 allies = occupied & ( side ? board->figures[BCOLOR] : ~board->figures[BCOLOR] );
-    u8 boardType = getFigureBoard(board, pos);
 
     if (boardType == BOCCUPIED) return 0;
     switch (boardType) {
@@ -98,6 +97,11 @@ u64 getPossibleMoves(BoardState* board, u8 pos) {
         res = possibleKnightAttacks(ULL1 << pos, 0, false) & ~allies;
         break;
     }
+    return res;
+}
 
-    return removeInvalidMoves(board, res, pos, boardType);
+u64 getPossibleMoves(BoardState* board, u8 pos) {
+    Boards boardType = getFigureBoard(board, pos);
+    u64 moves = getCandidateMoves(board, boardType, pos);
+    return removeInvalidMoves(board, moves, pos, boardType);
 }

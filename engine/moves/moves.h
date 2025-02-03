@@ -30,10 +30,12 @@ typedef struct {
 bool makeMove(BoardState* board, PGN* pgn, u8 from, u8 to, PROMOTION_TYPE type);
 bool makeMoveBack(BoardState* board, PGN* pgn);
 bool makeMoveForward(BoardState* board, PGN* pgn);
-PGN_MOVE applyMoveWithCheck(BoardState* board, u8 pos1, u8 pos2, PROMOTION_TYPE promotionType);
+PGN_MOVE applyMoveWithCheck(BoardState* board, u8 from, u8 to, PROMOTION_TYPE promotionType);
 void applyMove(BoardState* board, PGN_MOVE move);
 void invertMove(BoardState* board, PGN* pgn, u32 idx);
 u64 getPossibleMoves(BoardState* board, u8 pos);
+u64 getCandidateMoves(BoardState* board, Boards boardType, u8 pos);
+u64 removeInvalidMoves(BoardState* board, u64 moves, u8 pos, u8 boardType);
 u8 getBoardFromPromotion(u8 promotionType);
 
 #endif

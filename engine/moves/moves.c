@@ -112,7 +112,7 @@ void invertMove(BoardState* board, PGN* pgn, u32 idx) {
     
     case MOVE_PROMOTION:
         assert(move.piece == BPAWN);
-        board->figures[move.promotion] &= ~(ULL1 << move.to);
+        board->figures[getBoardFromPromotion(move.promotion)] &= ~(ULL1 << move.to);
         board->figures[BPAWN] |= ULL1 << move.to;
         __movePiece(board, move.to, move.from, BPAWN);
         if (move.captured != BOCCUPIED)
@@ -127,44 +127,59 @@ void invertMove(BoardState* board, PGN* pgn, u32 idx) {
     }
 }
 
-PGN_MOVE applyMoveWithCheck(BoardState* board, u8 pos1, u8 pos2, PROMOTION_TYPE promotionType) {
-    if (!( (board->figures[BOCCUPIED] >> pos1) & 1 ) || ((board->figures[BCOLOR] >> pos1) & 1) != board->turn || board->isEnd || pos1 == pos2)
+PGN_MOVE applyMoveWithCheck(BoardState* board, u8 from, u8 to, PROMOTION_TYPE promotionType) {
+    if (!( (board->figures[BOCCUPIED] >> from) & 1 ) || ((board->figures[BCOLOR] >> from) & 1) != board->turn || board->isEnd || from == to)
         return (PGN_MOVE){.isValidated=false};
     
-    u64 possibleMoves = getPossibleMoves(board, pos1);
-    if (!( (possibleMoves >> pos2) & 1)) 
+    Boards boardType = getFigureBoard(board, from);
+    bool side = (board->figures[BCOLOR] >> from) & 1;
+    u64 candidateMoves = getCandidateMoves(board, boardType, from);
+    if (!( (candidateMoves >> to) & 1)) 
         return (PGN_MOVE){.isValidated=false};
+    
+    if (boardType != BKING) {
+        u64 king = board->figures[BKING] & (side ? board->figures[BCOLOR] : ~board->figures[BCOLOR]);
+        MOVE_TYPE _type = _movePiece(board, from, to, boardType);
+        bool isCheckAfterMove = ( getAttacks(board, !side) & king ) != 0;
+        _undoMovePiece(board, from, to, boardType, _type);
 
-    Boards boardType = getFigureBoard(board, pos1);
-    bool side = (board->figures[BCOLOR] >> pos1) & 1;
-    PGN_MOVE move = (PGN_MOVE){.from=pos1, .to=pos2, 
+        if (isCheckAfterMove) return (PGN_MOVE){.isValidated=false};
+    }
+
+    PGN_MOVE move = (PGN_MOVE){.from=from, .to=to, 
         .piece=boardType, .promotion=promotionType, 
         .moveType=MOVE_REGULAR, .isValidated=false,
         .captured=BOCCUPIED};
 
-    if ((board->figures[boardType] >> pos2) & 1) {
+    if ((board->figures[boardType] >> to) & 1) {
         move.moveType = MOVE_SAME_FIGURE_CAPTURED;
         move.captured = boardType;
-    } else if ((board->figures[BOCCUPIED] >> pos2) & 1) {
+    } else if ((board->figures[BOCCUPIED] >> to) & 1) {
         move.moveType = MOVE_CAPTURED;
-        move.captured = getFigureBoard(board, pos2);
+        move.captured = getFigureBoard(board, to);
         assert(move.captured != BOCCUPIED);
     }
 
-    if (boardType == BKING && abs((pos1 & 7) - (pos2 & 7)) > 1) {
-        move.moveType = MOVE_CASTLING;
+    if (boardType == BKING) {
+        if (abs((from & 7) - (to & 7)) > 1) 
+            move.moveType = MOVE_CASTLING;
         move.isLongCastleGone = (board->turn && board->longCastleWhite) || (!board->turn && board->longCastleBlack);
         move.isShortCastleGone = (board->turn && board->shortCastleWhite) || (!board->turn && board->shortCastleBlack);
     } else if (boardType == BROOK) {
-        move.isLongCastleGone = ((pos1 != 0 && side) || (pos1 != 56 && !side)) && (side) ? board->longCastleWhite : board->shortCastleWhite;
-        move.isShortCastleGone = (pos1 != 7 && side) || (pos1 != 63 && !side) && (side) ? board->longCastleBlack : board->shortCastleBlack;
+        if (side) {
+            move.isLongCastleGone = from == 0 && board->longCastleWhite;
+            move.isShortCastleGone= from == 7 && board->shortCastleWhite;
+        } else {
+            move.isLongCastleGone = from == 56 && board->longCastleBlack;
+            move.isShortCastleGone= from == 63 && board->shortCastleBlack;
+        }
     } else if (boardType == BPAWN) {
-        if ((side && (pos2 >> 3) == 7) || (!side && (pos2 >> 3) == 0)) {
+        if ((side && (to >> 3) == 7) || (!side && (to >> 3) == 0)) {
             if (promotionType == PROMOTING_NONE)
                 return move;
             move.moveType = MOVE_PROMOTION;
         }
-        else if ((pos1 & 7) != (pos2 & 7) && !((board->figures[BOCCUPIED] >> pos2) & 1))
+        else if ((from & 7) != (to & 7) && !((board->figures[BOCCUPIED] >> to) & 1))
             move.moveType = MOVE_EN_PASSAGE;
     }
     
@@ -203,7 +218,8 @@ bool makeMoveBack(BoardState* board, PGN* pgn) {
     return true;
 }
 bool makeMoveForward(BoardState* board, PGN* pgn) {
-    if (pgn->idx >= pgn->len) return false;
-    applyMove(board, pgn->moves[pgn->idx++]);
+    if (pgn->idx + 1 >= pgn->len) return false;
+    printf("IDX: %d\n", pgn->idx);
+    applyMove(board, pgn->moves[++pgn->idx]);
     return true;
 }
