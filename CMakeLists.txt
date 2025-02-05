@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.24)
 project(cchess)
 set(CMAKE_BUILD_TYPE Debug)
+set(CMAKE_C_FLAGS_DEBUG "-g")
 set(CMAKE_C_COMPILER "gcc")
 
 add_subdirectory(engine)

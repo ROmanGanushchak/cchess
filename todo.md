@@ -11,7 +11,7 @@ Add to consider project finished:
 2. Add material difference
 3. Check the correctness of program with possible move counter
 
-
+/* cmake --build . && gdb -batch -ex "run" -ex "bt" cchess.exe */
 
 https://en.wikipedia.org/wiki/Portable_Game_Notation
 https://www.chess.com/terms/chess-pgn

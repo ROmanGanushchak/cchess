@@ -34,7 +34,7 @@ PGN_MOVE applyMoveWithCheck(BoardState* board, u8 from, u8 to, PROMOTION_TYPE pr
 void applyMove(BoardState* board, PGN_MOVE move);
 void invertMove(BoardState* board, PGN* pgn, u32 idx);
 u64 getPossibleMoves(BoardState* board, u8 pos);
-u64 getCandidateMoves(BoardState* board, Boards boardType, u8 pos);
+u64 getCandidateMoves(BoardState* board, Boards boardType, u8 pos, bool side, bool ignoreEmptyness);
 u64 removeInvalidMoves(BoardState* board, u64 moves, u8 pos, u8 boardType);
 u8 getBoardFromPromotion(u8 promotionType);
 

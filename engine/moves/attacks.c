@@ -27,11 +27,14 @@ u64 possibleKnightAttacks(u64 knights, u64 color, bool side) {
             (knights & SetNoLeftColumn) >> 17 | (knights & SetNoLeftColumn) << 15;
 }
 
-u64 possibleKingAttacks(BoardState* board, bool side) {
-    u64 kings = board->figures[BKING] & ((side) ? board->figures[BCOLOR] : ~board->figures[BCOLOR]);
+u64 _possibleKingAttacks(u64 kings) {
     return kings >> 8 | kings << 8 | 
         (kings & SetNoLeftColumn) >> 1 | (kings & SetNoLeftColumn) << 7 | (kings & SetNoLeftColumn) >> 9 | 
         (kings & SetNoRightColumn) << 1 | (kings & SetNoRightColumn) << 9 | (kings & SetNoRightColumn) >> 7; 
+}
+
+u64 possibleKingAttacks(BoardState* board, bool side) {
+    return _possibleKingAttacks(board->figures[BKING] & (side ? board->figures[BCOLOR] : ~board->figures[BCOLOR]));
 }
 
 u64 getAttacks(BoardState* board, bool side) {

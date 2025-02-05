@@ -133,7 +133,7 @@ PGN_MOVE applyMoveWithCheck(BoardState* board, u8 from, u8 to, PROMOTION_TYPE pr
     
     Boards boardType = getFigureBoard(board, from);
     bool side = (board->figures[BCOLOR] >> from) & 1;
-    u64 candidateMoves = getCandidateMoves(board, boardType, from);
+    u64 candidateMoves = getCandidateMoves(board, boardType, from, side, 0);
     if (!( (candidateMoves >> to) & 1)) 
         return (PGN_MOVE){.isValidated=false};
     

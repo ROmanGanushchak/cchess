@@ -9,7 +9,8 @@
 #define u64 unsigned long long
 
 #define ULL1 ((u64)1)
-#define LEFT_EDGE 0x0101010101010101
+#define LEFT_EDGE (u64)0x0101010101010101
+#define BOTTOM_ROW (u64)0xFF
 #define RIGHT_EDGE LEFT_EDGE >> 7
 
 int abs(int a);
