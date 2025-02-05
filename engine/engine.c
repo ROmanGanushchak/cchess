@@ -44,7 +44,7 @@ GAME_STATES getIsCheck(u64 king, u64 attacked, bool side) {
 }
 
 GAME_STATES isCheckmate(BoardState* board) {
-    bool side = !board->turn;
+    bool side = board->turn;
     u64 attacked = getAttacks(board, !side);
     u64 allies = board->figures[BOCCUPIED] & (side ? board->figures[BCOLOR] : ~board->figures[BCOLOR]);
     u64 king = board->figures[BKING] & (side ? board->figures[BCOLOR] : ~board->figures[BCOLOR]);

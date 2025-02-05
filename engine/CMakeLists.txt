@@ -3,6 +3,7 @@ set(ENGINE_SOURCES
     types.c
     fen.c
     pgn.c
+    pgnConvertor.c
 )
 
 add_subdirectory(moves)

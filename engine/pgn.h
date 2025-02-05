@@ -48,20 +48,22 @@ typedef struct {
 typedef struct {
     BoardState board;
     PGN* pgn;
-    FORK_ARR forkstack;
+    PGN_MOVE* moves;
     u16 idx;
 } PGN_VIEW;
+
+// As index uses the idx for view
+bool pgnViewMove(PGN_VIEW* view, i32 offset);
+bool pgnViewMakeMove(PGN_VIEW* view, PGN_MOVE move);
+void pgnViewCreateFork(PGN_VIEW* view);
+bool pgnViewLeaveFork(PGN_VIEW* view);
+// destroyes all elements of the view with an exception of pgn, doesnt free the struct itself
+void releasePgnView(PGN_VIEW* view);
 
 typedef struct {
     PGN_VIEW view;
     bool isValid;
 } OPTIONAL_PGN_VIEW;
-
-// void saveMoveToView(PGN_VIEW* view, PGN_MOVE move);
-// PGN_MOVE getPGNViewMove(PGN_VIEW* view, u16 idx);
-// void createNewFork(PGN_VIEW* view, u16 idx);
-// void exitFork(PGN_VIEW* view);
-// u32 getPGN_VIEW_len(PGN_VIEW* view);
 
 // assumes that starting position is a default one
 STR convertPgnToStr(PGN* pgn);

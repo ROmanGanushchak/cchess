@@ -13,6 +13,9 @@
 #define BOTTOM_ROW (u64)0xFF
 #define RIGHT_EDGE LEFT_EDGE >> 7
 
+#define min(a, b) (((a) < (b)) ? (a) : (b))
+#define max(a, b) (((a) > (b)) ? (a) : (b))
+
 int abs(int a);
 
 typedef struct {
